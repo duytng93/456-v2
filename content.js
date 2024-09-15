@@ -55,26 +55,40 @@ if (!document.getElementById('ai-chat-box')) {
     document.getElementById('QAButton').addEventListener('click', toggleQAdiv);
     document.getElementById('closeChatBtn').addEventListener('click', showEndChat);
     document.getElementById('minimizeBtn').addEventListener('click', toggleQAdiv);
-    document.getElementById('submitQuestionButton').addEventListener('click', writeAndSubmit);
+    document.getElementById('submitQuestionButton').addEventListener('click', displayAndSubmit);
     document.getElementById('maximizeBtn').addEventListener('click', maximizeChat);
     document.getElementById('question').addEventListener('keydown', function (event) {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault(); // Prevent the default behavior (inserting a newline)
-            writeAndSubmit(); // Submit the form
+            //get question text
+            conversation.push(question.value);
+            displayAndSubmit(question.value); // Submit the form
           }
       });
     document.getElementById("loadingGif").src = chrome.runtime.getURL("images/chatbot-thinking-bg-removed.gif");
     document.getElementById("closeConfirm").addEventListener('click', endChat);
     document.getElementById("closeCancel").addEventListener('click', hideEndChat);
     
-
     const QAdiv = document.getElementById('QAdiv');
     const QAButtonContainer = document.getElementById('QAButtonContainer');
     const conversationDiv = document.getElementById("conversationDiv");
     const closingMessage = document.getElementById("closingMessage");
+    const question = document.getElementById("question");
 
     let conversation = [];
     let isBigger = false;
+
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      if (message.action === "pushSelectedText") {
+        const selectedText = message.text;
+        if(QAdiv.style.display !== 'block'){
+          toggleQAdiv();
+        }
+        conversation.push(selectedText);
+        displayAndSubmit(shortenString(selectedText, 70));
+        
+      }
+    });
 
     function toggleQAdiv(){
         //console.log('toggleQAdiv');
@@ -92,10 +106,6 @@ if (!document.getElementById('ai-chat-box')) {
             }, 500);
             QAButtonContainer.style.visibility='visible';
         }
-    }
-
-    function writeAndSubmit(){
-        //console.log('writeAndSubmit');
     }
 
     function endChat(){
@@ -148,11 +158,7 @@ if (!document.getElementById('ai-chat-box')) {
               setTimeout(() => {
                 div.style.opacity = "1";
               }, 10);
-            //   appendLetterByLetter(
-            //     div.getElementsByClassName("messageDiv").item(0),
-            //     response.answer,
-            //     0
-            //   );
+            
             setTimeout(() => {
                 document.getElementById("loadingGif").style.opacity = 0;
               }, 500);
@@ -164,11 +170,7 @@ if (!document.getElementById('ai-chat-box')) {
         );
     }
 
-    function writeAndSubmit() {
-        //get question text
-        const newMessage = document.getElementById("question").value;
-        conversation.push(newMessage);
-        
+    function displayAndSubmit(newMessage) {
       
         // show loading animation
         conversationDiv.style.display = "block";
@@ -244,9 +246,7 @@ if (!document.getElementById('ai-chat-box')) {
         // }
     }
 
-    //toggleQAdiv() minimizeBtn QAButton
-    //endChat() closeChatBtn
-    //writeAndSubmit() submitQuestionButton
+
 
     function formatConversation(conversation) {
         var formattedConversation = [];
@@ -268,5 +268,12 @@ if (!document.getElementById('ai-chat-box')) {
         //console.log(formattedMessage);
         return formattedMessage;
     }
+
+    function shortenString(str, maxLength) {
+      if (str.length > maxLength) {
+          return str.substring(0, maxLength) + '...';
+      }
+      return str;
+  }
 
   }

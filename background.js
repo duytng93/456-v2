@@ -42,3 +42,21 @@ async function askQuestion(formattedConversation) {
     throw new Error("Failed to simplify text");
   }
 }
+
+chrome.contextMenus.create({
+  id: "breakdownText",
+  title: "Break it down for me",
+  contexts: ["selection"], // The menu item appears when text is selected
+  documentUrlPatterns: ["<all_urls>"] // Specify the URL patterns if needed
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === "breakdownText") {
+
+    // Example action: send the selected text to a content script
+    chrome.tabs.sendMessage(tab.id, {
+      action: "pushSelectedText",
+      text: "Break it down for me: ```" + info.selectionText + "```"
+    });
+  }
+});
