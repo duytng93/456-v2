@@ -1,6 +1,8 @@
 import { apiKey } from "./apiKey.js";
-var systemMessage = "You are an AI assistant that hellp people with learning disabilities. Therefore, your answer need to be clear and simple. Try to use clear and simple words. Break down the concept into smaller main points if needed.";
-var firstUserMessage = "Please breakdown this text for easy understanding: ";
+import { messages } from "./messages.js";
+
+//var systemMessage = "You are an AI assistant that hellp people with learning disabilities. Therefore, your answer need to be clear and simple. Try to use clear and simple words. Break down the concept into smaller main points if needed.";
+var language = "en";
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if(request.action === 'askQuestion'){
@@ -8,14 +10,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // Call your OpenAI API function here or handle the text processing.
     askQuestion(formattedConversation).then((response) => {
       sendResponse({ answer: response });
-  })}
+  })}else if(request.action === 'changeLanguage'){
+    language = request.language;
+    chrome.contextMenus.update("breakdownText", {
+      title: messages[language].breakdownText
+    });
+  }else if(request.action === 'getLanguage'){
+    sendResponse({ language: language });
+  }
   return true;  // Required when using sendResponse asynchronously
 });
 
 async function askQuestion(formattedConversation) {
 
   let conversation = [
-    { role: "system", content: systemMessage },
+    { role: "system", content: messages[language].systemMessage },
   ]
 
   conversation = conversation.concat(formattedConversation);
@@ -43,11 +52,15 @@ async function askQuestion(formattedConversation) {
   }
 }
 
-chrome.contextMenus.create({
-  id: "breakdownText",
-  title: "Break it down for me",
-  contexts: ["selection"], // The menu item appears when text is selected
-  documentUrlPatterns: ["<all_urls>"] // Specify the URL patterns if needed
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create({
+      id: "breakdownText",
+      title: messages[language].breakdownText,
+      contexts: ["selection"], // The menu item appears when text is selected
+      documentUrlPatterns: ["<all_urls>"] // Specify the URL patterns if needed
+    });
+  });
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
@@ -56,7 +69,13 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     // Example action: send the selected text to a content script
     chrome.tabs.sendMessage(tab.id, {
       action: "pushSelectedText",
-      text: "Break it down for me: ```" + info.selectionText + "```"
+      text: messages[language].breakdownText + " ```" + info.selectionText + " ```"
     });
+  }
+});
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'getMessages') {
+    sendResponse({ messages });
   }
 });

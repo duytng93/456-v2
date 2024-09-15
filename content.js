@@ -24,7 +24,7 @@ if (!document.getElementById('ai-chat-box')) {
         <button class="minimize-button text-white" id="minimizeBtn">&#128469;</button>
         <button class="maximize-button text-white" id="maximizeBtn">&#x1F5D7;</button>
         <div id="closingMessage" class="border-primary">
-            <p>End this chat?</p>
+            <p id="closingMessageHeader">End this chat?</p>
             <button class="btn btn-primary" id="closeConfirm">Yes</button>
             <button class="btn btn-secondary" id="closeCancel">No</button>
         </div>
@@ -68,15 +68,33 @@ if (!document.getElementById('ai-chat-box')) {
     document.getElementById("loadingGif").src = chrome.runtime.getURL("images/chatbot-thinking-bg-removed.gif");
     document.getElementById("closeConfirm").addEventListener('click', endChat);
     document.getElementById("closeCancel").addEventListener('click', hideEndChat);
+    document.getElementById("language-select").addEventListener('change', function(){
+      currentLanguage = this.value;
+      chrome.runtime.sendMessage({ action: "changeLanguage", language: this.value });
+      updateTextLanguage();
+    });
     
     const QAdiv = document.getElementById('QAdiv');
+    const QAButton = document.getElementById('QAButton');
+    const QAdivHeader = document.getElementById('QAdiv-header');
+    const closingMessageHeader = document.getElementById('closingMessageHeader');
+    const selectLanguagePan = document.getElementById('select-language-pan');
     const QAButtonContainer = document.getElementById('QAButtonContainer');
     const conversationDiv = document.getElementById("conversationDiv");
     const closingMessage = document.getElementById("closingMessage");
     const question = document.getElementById("question");
+    let currentLanguage = "en";
 
     let conversation = [];
     let isBigger = false;
+    let messages ={};
+
+    chrome.runtime.sendMessage({ action: 'getMessages' }, (response) => {
+      if (response && response.messages) {
+        messages = response.messages;
+        getLanguageAndUpdateText();
+      }
+    });
 
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (message.action === "pushSelectedText") {
@@ -89,6 +107,8 @@ if (!document.getElementById('ai-chat-box')) {
         
       }
     });
+
+    
 
     function toggleQAdiv(){
         //console.log('toggleQAdiv');
@@ -229,25 +249,6 @@ if (!document.getElementById('ai-chat-box')) {
         return div;
     }
 
-    function appendLetterByLetter(messageDiv, response, index) {
-        
-        // if (index < response.length) {
-        //   messageDiv.textContent += response.charAt(index); // Append current letter
-        //   document.getElementById("conversationDiv").scrollTop =
-        //     document.getElementById("conversationDiv").scrollHeight;
-        //   setTimeout(() => appendLetterByLetter(messageDiv, response, index + 1), 10); // Wait 10ms then append next letter
-        // } else {
-        //   setTimeout(() => {
-        //     document.getElementById("loadingGif").style.opacity = 0;
-        //   }, 500);
-        //   setTimeout(() => {
-        //     document.getElementById("loadingGif").style.display = "none";
-        //   }, 1000);
-        // }
-    }
-
-
-
     function formatConversation(conversation) {
         var formattedConversation = [];
         for (var i = 0; i < conversation.length; i++) {
@@ -274,6 +275,30 @@ if (!document.getElementById('ai-chat-box')) {
           return str.substring(0, maxLength) + '...';
       }
       return str;
-  }
+    }
+
+    function getLanguageAndUpdateText(){
+        chrome.runtime.sendMessage({ action: "getLanguage" }, (response) => {
+            if (response && response.language) {
+              currentLanguage = response.language;
+              document.getElementById("language-select").value = currentLanguage
+              updateTextLanguage();
+            }
+          });
+    }
+
+    function setLanguage(){
+        chrome.runtime.sendMessage({ action: "changeLanguage", language: currentLanguage });
+    }
+
+    function updateTextLanguage(){
+      //console.log(messages);
+        QAButton.innerHTML = messages[currentLanguage].needHelpButton + ' <i class="fa fa-commenting-o fa-rotate-270"></i>';
+        QAdivHeader.textContent = messages[currentLanguage].header;
+        selectLanguagePan.textContent = messages[currentLanguage].selectLanguage;
+        closingMessageHeader.textContent = messages[currentLanguage].endChat;
+        question.placeholder = messages[currentLanguage].enterQuestion;
+        selectLanguagePan.textContent = messages[currentLanguage].selectLanguage;
+    }
 
   }
