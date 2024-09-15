@@ -1,0 +1,42 @@
+{
+    "manifest_version": 3,
+    "name": "Persistent AI Chatbox",
+    "version": "1.0",
+    "permissions": ["storage", "activeTab", "tabs","contextMenus"],
+    "background": {
+      "service_worker": "background.js",
+      "type": "module"
+    },
+    "content_scripts": [
+      {
+        "matches": ["<all_urls>"], 
+        "js": ["marked.min.js","content.js"],
+        "css": ["style.css"]  
+      }
+    ],
+    "web_accessible_resources": [
+      {
+        "resources": ["bootstrap.min.css",
+                      "bootstrap-icons.css",
+                      "images/user-icon.png",
+                      "images/open-ai-logo.png",
+                      "images/chatbot-thinking-bg-removed.gif"],
+        "matches": ["<all_urls>"]
+      }
+    ],
+    "host_permissions": [
+      "https://api.openai.com/v1/chat/completions"
+    ],
+    "action": {
+      "default_icon": {
+        "16": "icon16.png",
+        "48": "icon48.png",
+        "128": "icon128.png"
+      }
+    },"icons": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  }
+  

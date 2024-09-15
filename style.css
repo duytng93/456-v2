@@ -1,0 +1,181 @@
+
+#QAButtonContainer{
+  position: fixed;    /* Fixes the button in place */
+  top: 80%;           /* Adjusts the button to be vertically centered */
+  right: 0;
+  z-index: 9999
+}
+
+#QAButton{
+    transform: rotate(90deg) translateY(60%);  /* Rotate and move the button back to the right */
+    transform-origin: right center;           /* Pivot the rotation from the right side */;
+    text-align: center;
+    white-space: nowrap;
+}
+
+#QAdiv{
+    display: none;
+    opacity: 0;
+    position: fixed;
+    bottom: 5%;
+    right: 2%;
+    border-radius: 15px; /* Rounded corners */
+    /*padding: 0 20px 20px 20px; !* Some padding inside the div *!*/
+    background-color: #f2f2f2; /* Light grey background */
+    width: 30%;
+    transition: opacity ease 0.5s;
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    z-index: 9999
+}
+
+#QAdiv-header{
+    display: flex;
+    align-items: center;
+    height: 40px;
+    padding-left: 20px;
+    border-radius: 10px 10px 0 0;
+    color: white;
+    font-size: large;
+}
+
+#submitQuestionButton{
+    width: 100%;
+    max-width: 70px;
+}
+
+.close-button {
+    display: block;
+    position: absolute;
+    top: 4px;
+    right: 2%;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.minimize-button{
+    position: absolute;
+    top: 4px;
+    right: 12%;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.maximize-button{
+    position: absolute;
+    top: 4px;
+    right: 7%;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.maximize-button:hover{
+    border: 1px solid #f2f2f2;
+}
+
+.minimize-button:hover{
+    border: 1px solid #f2f2f2;
+}
+
+.close-button:hover{
+    border: 1px solid #f2f2f2;
+}
+
+#loadingGif {
+    position: absolute; /* Position the image absolutely */
+    top: 30%; /* Place the image 50% down from the top of the container */
+    right: 2%; /* Place the image 50% across from the left of the container */
+    z-index: 1; /* Ensure the image stays in front of other content */
+    display: none;
+    opacity: 0;
+    transition: opacity ease 0.5s;
+}
+
+.messageContainerDiv{
+    opacity: 0;
+    transition: opacity ease 1s;
+    display: flex;
+    justify-content: center;
+}
+
+.messageLogoDiv {
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.messageDiv {
+    vertical-align: top;
+    width: 78%;
+    /* margin-left: 0;
+    margin-right: 5%; */
+    display: inline-block;
+    background-color: rgb(255, 255, 255);
+    border-radius: 10px;
+    padding:2% 5% 0 5%;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+#conversationDiv{
+    display: none;
+    width: 100%;
+    height: 0;
+    overflow-y: auto;
+    transition: height ease 0.5s;
+    padding: 10px;
+}
+
+#closingMessage{
+    display: none;
+    opacity: 0;
+    position: absolute;
+    bottom: 30%;
+    right: 30%;
+    border: 2px solid #4CAF50; /* Solid border with color */
+    border-radius: 15px; /* Rounded corners */
+    padding: 20px; /* Some padding inside the div */
+    background-color: white; /* Light grey background */
+    width: 150px;
+    height: 130px;
+    transition: opacity ease 0.5s;
+}
+
+#thankYouMessage{
+    text-align: center;
+    display: none;
+    opacity: 0;
+    position: absolute;
+    bottom: 30%;
+    left: 6%;
+    border: 2px solid #4CAF50; /* Solid border with color */
+    border-radius: 15px; /* Rounded corners */
+    padding: 20px; /* Some padding inside the div */
+    background-color: white; /* Light grey background */
+    transition: opacity ease 0.5s;
+}
+
+#ratingMessage{
+    text-align: center;
+    display: none;
+    opacity: 0;
+    position: absolute;
+    bottom: 30%;
+    right: 10%;
+    border: 2px solid #4CAF50; /* Solid border with color */
+    border-radius: 15px; /* Rounded corners */
+    padding: 20px; /* Some padding inside the div */
+    background-color: white; /* Light grey background */
+    transition: opacity ease 0.5s;
+}
+
+.custom-icon{
+    font-size:50px !important;
+    color:yellow;
+}
