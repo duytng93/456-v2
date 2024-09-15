@@ -89,7 +89,7 @@
 #loadingGif {
     position: absolute; /* Position the image absolutely */
     top: 30%; /* Place the image 50% down from the top of the container */
-    right: 2%; /* Place the image 50% across from the left of the container */
+    right: 45%; /* Place the image 50% across from the left of the container */
     z-index: 1; /* Ensure the image stays in front of other content */
     display: none;
     opacity: 0;
@@ -137,14 +137,14 @@
     opacity: 0;
     position: absolute;
     bottom: 30%;
-    right: 30%;
-    border: 2px solid #4CAF50; /* Solid border with color */
+    right: 45%;
     border-radius: 15px; /* Rounded corners */
     padding: 20px; /* Some padding inside the div */
     background-color: white; /* Light grey background */
     width: 150px;
     height: 130px;
     transition: opacity ease 0.5s;
+    z-index: 9999;
 }
 
 #thankYouMessage{

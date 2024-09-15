@@ -23,6 +23,11 @@ if (!document.getElementById('ai-chat-box')) {
         <button class="close-button text-white" id="closeChatBtn">&#128473;</button>
         <button class="minimize-button text-white" id="minimizeBtn">&#128469;</button>
         <button class="maximize-button text-white" id="maximizeBtn">&#x1F5D7;</button>
+        <div id="closingMessage" class="border-primary">
+            <p>End this chat?</p>
+            <button class="btn btn-primary" id="closeConfirm">Yes</button>
+            <button class="btn btn-secondary" id="closeCancel">No</button>
+        </div>
         <img id="loadingGif" alt="Loading..." width="120px" height="120px"/>
         <div id="conversationDiv">
         </div>
@@ -48,7 +53,7 @@ if (!document.getElementById('ai-chat-box')) {
     document.body.appendChild(chatBox);
 
     document.getElementById('QAButton').addEventListener('click', toggleQAdiv);
-    document.getElementById('closeChatBtn').addEventListener('click', endChat);
+    document.getElementById('closeChatBtn').addEventListener('click', showEndChat);
     document.getElementById('minimizeBtn').addEventListener('click', toggleQAdiv);
     document.getElementById('submitQuestionButton').addEventListener('click', writeAndSubmit);
     document.getElementById('maximizeBtn').addEventListener('click', maximizeChat);
@@ -59,9 +64,15 @@ if (!document.getElementById('ai-chat-box')) {
           }
       });
     document.getElementById("loadingGif").src = chrome.runtime.getURL("images/chatbot-thinking-bg-removed.gif");
+    document.getElementById("closeConfirm").addEventListener('click', endChat);
+    document.getElementById("closeCancel").addEventListener('click', hideEndChat);
+    
 
     const QAdiv = document.getElementById('QAdiv');
     const QAButtonContainer = document.getElementById('QAButtonContainer');
+    const conversationDiv = document.getElementById("conversationDiv");
+    const closingMessage = document.getElementById("closingMessage");
+
     let conversation = [];
     let isBigger = false;
 
@@ -89,6 +100,29 @@ if (!document.getElementById('ai-chat-box')) {
 
     function endChat(){
         //console.log('endChat');
+        conversation = [];
+        conversationDiv.innerHTML = '';
+        toggleQAdiv();
+        setTimeout(() => {
+          conversationDiv.style.height = "0px";
+        }, 10);
+        hideEndChat();
+    }
+
+    function showEndChat(){
+      if(conversation.length > 0){
+        document.getElementById("closingMessage").style.display = 'block'
+        setTimeout(() => {
+            document.getElementById('closingMessage').style.opacity = 1;
+        }, 10);
+      }else toggleQAdiv();
+  }
+
+    function hideEndChat(){
+        document.getElementById('closingMessage').style.opacity = 0;
+        setTimeout(() => {
+            document.getElementById('closingMessage').style.display = 'none';
+        }, 10);
     }
 
     function maximizeChat(){
@@ -133,7 +167,6 @@ if (!document.getElementById('ai-chat-box')) {
     function writeAndSubmit() {
         //get question text
         const newMessage = document.getElementById("question").value;
-        const conversationDiv = document.getElementById("conversationDiv");
         conversation.push(newMessage);
         
       
