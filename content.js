@@ -92,7 +92,7 @@ if (!document.getElementById('ai-chat-box')) {
     chrome.runtime.sendMessage({ action: 'getMessages' }, (response) => {
       if (response && response.messages) {
         messages = response.messages;
-        getLanguageAndUpdateText();
+        getData();
       }
     });
 
@@ -107,12 +107,23 @@ if (!document.getElementById('ai-chat-box')) {
         
       }
     });
-
     
 
     function toggleQAdiv(){
         //console.log('toggleQAdiv');
         if(QAdiv.style.display !== 'block'){
+            console.log(!conversationDiv.style.height)
+            console.log(conversationDiv.style.height === "0px")
+            console.log(conversation.length > 0)
+            console.log(conversationDiv.style.height)
+            console.log((!conversationDiv.style.height || conversationDiv.style.height === "0px") && conversation.length > 0)
+            if (conversation.length > 0) {  
+              console.log('expand');
+              conversationDiv.style.display = "block";
+              setTimeout(() => {
+                conversationDiv.style.height = "350px";
+              }, 10);
+            }
             QAdiv.style.display='block';
             setTimeout(() => {
                 QAdiv.style.opacity = '1';
@@ -120,6 +131,11 @@ if (!document.getElementById('ai-chat-box')) {
             QAButtonContainer.style.visibility='hidden';
         }
         else{
+          if(conversation.length > 0){
+            setTimeout(() => {
+              conversationDiv.style.height = "0px";
+            }, 10);
+          }
             QAdiv.style.opacity = '0';
             setTimeout(() => {
                 QAdiv.style.display = 'none';
@@ -132,6 +148,7 @@ if (!document.getElementById('ai-chat-box')) {
         //console.log('endChat');
         conversation = [];
         conversationDiv.innerHTML = '';
+        endConversation();
         toggleQAdiv();
         setTimeout(() => {
           conversationDiv.style.height = "0px";
@@ -166,13 +183,14 @@ if (!document.getElementById('ai-chat-box')) {
         }
     }
 
-    function askQuestion(formattedConversation) {
+    function askQuestion(unformattedConversation) {
         chrome.runtime.sendMessage(
-          { action: "askQuestion", text: formattedConversation },
+          { action: "askQuestion", text: unformattedConversation },
           (response) => {
             if (response && response.answer) {
             //console.log(response.answer);
               conversation.push(response.answer);
+              saveCurrentConversation();
               let div = createMessageDiv(response.answer, "assistant");
               conversationDiv.appendChild(div);
               setTimeout(() => {
@@ -204,11 +222,10 @@ if (!document.getElementById('ai-chat-box')) {
       
         //create message div and append to conversation div
         const div = createMessageDiv(newMessage, "user");
-        if (!conversationDiv.style.height) {
+        if (!conversationDiv.style.height || conversationDiv.style.height === "0px") {  
           setTimeout(() => {
             conversationDiv.style.height = "350px";
           }, 10);
-          document.getElementById("closeChatBtn").style.display = "block";
         }
         conversationDiv.appendChild(div);
         setTimeout(() => {
@@ -217,7 +234,8 @@ if (!document.getElementById('ai-chat-box')) {
         conversationDiv.scrollTop = conversationDiv.scrollHeight;
       
         // send question to backend and get response
-        askQuestion(formatConversation(conversation));
+        askQuestion(conversation);
+        
     }
 
     function createMessageDiv(newMessage, role) {
@@ -249,20 +267,7 @@ if (!document.getElementById('ai-chat-box')) {
         return div;
     }
 
-    function formatConversation(conversation) {
-        var formattedConversation = [];
-        for (var i = 0; i < conversation.length; i++) {
-          if (i % 2 == 0) {
-            formattedConversation.push({ role: "user", content: conversation[i] });
-          } else {
-            formattedConversation.push({
-              role: "assistant",
-              content: conversation[i],
-            });
-          }
-        }
-        return formattedConversation;
-    }
+    
 
     function formatMessage(newMessage) {
         let formattedMessage = marked(newMessage);
@@ -277,18 +282,89 @@ if (!document.getElementById('ai-chat-box')) {
       return str;
     }
 
-    function getLanguageAndUpdateText(){
-        chrome.runtime.sendMessage({ action: "getLanguage" }, (response) => {
-            if (response && response.language) {
-              currentLanguage = response.language;
-              document.getElementById("language-select").value = currentLanguage
-              updateTextLanguage();
+    function getData(){
+      chrome.runtime.sendMessage({ action: "getData" }, (response) => {
+        if(response && response.language){
+          currentLanguage = response.language;
+          document.getElementById("language-select").value = currentLanguage;
+          updateTextLanguage();
+        }
+        if(response && response.currentConversation.length>0){
+            console.log(response.currentConversation);
+            QAButton.innerHTML = messages[currentLanguage].continueChat + ' <i class="fa fa-commenting-o fa-rotate-270"></i>';
+            conversation = response.currentConversation;
+            // setTimeout(() => {
+            //   conversationDiv.style.height = "350px";
+            // }, 10);
+            for (let i = 0; i < conversation.length; i++) {
+              if (i % 2 == 0) {
+                let div = createMessageDiv(conversation[i], "user");
+                conversationDiv.appendChild(div);
+                setTimeout(() => {
+                  div.style.opacity = "1";
+                }, 10);
+              }else{
+                let div = createMessageDiv(conversation[i], "assistant");
+                conversationDiv.appendChild(div);
+                setTimeout(() => {
+                  div.style.opacity = "1";
+                }, 10);
+              }
             }
-          });
+            conversationDiv.scrollTop = conversationDiv.scrollHeight;
+        }
+      })
     }
+
+    // function getLanguageAndUpdateText(){
+    //     chrome.runtime.sendMessage({ action: "getLanguage" }, (response) => {
+    //         if (response && response.language) {
+    //           currentLanguage = response.language;
+    //           document.getElementById("language-select").value = currentLanguage
+    //           updateTextLanguage();
+    //         }
+    //       });
+    // }
 
     function setLanguage(){
         chrome.runtime.sendMessage({ action: "changeLanguage", language: currentLanguage });
+    }
+
+    // function getCurrentConversationAndDisplay(){
+    //     chrome.runtime.sendMessage({ action: "getCurrentConversation" }, (response) => {
+    //       if (response && response.currentConversation.length) {
+    //         console.log(response.currentConversation);
+    //         QAButton.innerHTML = messages[currentLanguage].continueChat + ' <i class="fa fa-commenting-o fa-rotate-270"></i>';
+    //         conversation = response.currentConversation;
+    //         setTimeout(() => {
+    //           conversationDiv.style.height = "350px";
+    //         }, 10);
+    //         for (let i = 0; i < conversation.length; i++) {
+    //           if (i % 2 == 0) {
+    //             let div = createMessageDiv(conversation[i], "user");
+    //             conversationDiv.appendChild(div);
+    //             setTimeout(() => {
+    //               div.style.opacity = "1";
+    //             }, 10);
+    //           }else{
+    //             let div = createMessageDiv(conversation[i], "assistant");
+    //             conversationDiv.appendChild(div);
+    //             setTimeout(() => {
+    //               div.style.opacity = "1";
+    //             }, 10);
+    //           }
+    //         }
+    //         conversationDiv.scrollTop = conversationDiv.scrollHeight;
+    //       }
+    //     });
+    // }
+
+    function saveCurrentConversation(){
+        chrome.runtime.sendMessage({ action: "saveCurrentConversation", conversation: conversation });
+    }
+
+    function endConversation(){
+      chrome.runtime.sendMessage({ action: "endConversation" });
     }
 
     function updateTextLanguage(){

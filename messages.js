@@ -7,6 +7,7 @@ export var messages = {
         "enterQuestion": "Enter your question:",
         "breakdownText": "Break it down for me",
         "endChat": "End this chat?",
+        "continueChat": "Continue this chat?",
     },
     "es":{
         "systemMessage": "Eres un asistente de IA que ayuda a personas con discapacidades de aprendizaje. Por lo tanto, tu respuesta debe ser clara y simple. Intenta usar palabras claras y simples. Divide el concepto en puntos principales más pequeños si es necesario.",
@@ -16,14 +17,16 @@ export var messages = {
         "enterQuestion": "Ingresa tu pregunta:",
         "breakdownText": "Divídelo para mí",
         "endChat": "¿Terminar este chat?",
+        "continueChat": "¿Continuar este chat?",
     },
     "vi":{
         "systemMessage": "Bạn là một trợ lý trí tuệ nhân tạo giúp đỡ người có khuyết tật học. Do đó, câu trả lời của bạn cần phải rõ ràng và đơn giản. Hãy cố gắng sử dụng từ ngữ rõ ràng và đơn giản. Chia nhỏ khái niệm thành các điểm chính nhỏ hơn nếu cần.",
         "needHelpButton": "Cần giúp đỡ?",
-        "header": "Trò chuyện với AI:",
+        "header": "Chat với AI:",
         "selectLanguage": "Chọn ngôn ngữ của bạn",
         "enterQuestion": "Nhập câu hỏi của bạn:",
         "breakdownText": "Tóm tắt/Đơn giản hóa",
-        "endChat": "Kết thúc cuộc trò chuyện này?",
+        "endChat": "Kết thúc cuộc chat này?",
+        "continueChat": "Tiếp tục chat?",
     },
 }

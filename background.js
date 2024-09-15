@@ -3,10 +3,11 @@ import { messages } from "./messages.js";
 
 //var systemMessage = "You are an AI assistant that hellp people with learning disabilities. Therefore, your answer need to be clear and simple. Try to use clear and simple words. Break down the concept into smaller main points if needed.";
 var language = "en";
+var currentConversation = [];
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if(request.action === 'askQuestion'){
-    const formattedConversation = request.text;
+    const formattedConversation = formatConversation(request.text);
     // Call your OpenAI API function here or handle the text processing.
     askQuestion(formattedConversation).then((response) => {
       sendResponse({ answer: response });
@@ -15,8 +16,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     chrome.contextMenus.update("breakdownText", {
       title: messages[language].breakdownText
     });
-  }else if(request.action === 'getLanguage'){
-    sendResponse({ language: language });
+  }
+  // else if(request.action === 'getLanguage'){
+  //   sendResponse({ language: language });
+  // }else if(request.action === 'getCurrentConversation'){
+  //   sendResponse({ currentConversation: currentConversation });
+  // }
+  else if(request.action === 'getData'){
+    sendResponse({ language: language, currentConversation: currentConversation });
+  }
+  else if(request.action === 'saveCurrentConversation'){
+    currentConversation = request.conversation;
+    console.log(currentConversation);
+  }else if(request.action==='endConversation'){
+    currentConversation = [];
+    console.log(currentConversation);
   }
   return true;  // Required when using sendResponse asynchronously
 });
@@ -79,3 +93,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     sendResponse({ messages });
   }
 });
+
+function formatConversation(conversation) {
+  var formattedConversation = [];
+  for (var i = 0; i < conversation.length; i++) {
+    if (i % 2 == 0) {
+      formattedConversation.push({ role: "user", content: conversation[i] });
+    } else {
+      formattedConversation.push({
+        role: "assistant",
+        content: conversation[i],
+      });
+    }
+  }
+  return formattedConversation;
+}
