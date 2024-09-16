@@ -112,18 +112,14 @@ if (!document.getElementById('ai-chat-box')) {
     function toggleQAdiv(){
         //console.log('toggleQAdiv');
         if(QAdiv.style.display !== 'block'){
-            console.log(!conversationDiv.style.height)
-            console.log(conversationDiv.style.height === "0px")
-            console.log(conversation.length > 0)
-            console.log(conversationDiv.style.height)
-            console.log((!conversationDiv.style.height || conversationDiv.style.height === "0px") && conversation.length > 0)
-            if (conversation.length > 0) {  
-              console.log('expand');
+            if (conversation.length > 0) { 
+              QAButton.innerHTML = messages[currentLanguage].continueChat + ' <i class="fa fa-commenting-o fa-rotate-270"></i>'; 
               conversationDiv.style.display = "block";
               setTimeout(() => {
                 conversationDiv.style.height = "350px";
               }, 10);
             }
+            else QAButton.innerHTML = messages[currentLanguage].needHelpButton + ' <i class="fa fa-commenting-o fa-rotate-270"></i>';
             QAdiv.style.display='block';
             setTimeout(() => {
                 QAdiv.style.opacity = '1';
@@ -132,10 +128,12 @@ if (!document.getElementById('ai-chat-box')) {
         }
         else{
           if(conversation.length > 0){
+            QAButton.innerHTML = messages[currentLanguage].continueChat + ' <i class="fa fa-commenting-o fa-rotate-270"></i>';
             setTimeout(() => {
               conversationDiv.style.height = "0px";
             }, 10);
           }
+          else QAButton.innerHTML = messages[currentLanguage].needHelpButton + ' <i class="fa fa-commenting-o fa-rotate-270"></i>';
             QAdiv.style.opacity = '0';
             setTimeout(() => {
                 QAdiv.style.display = 'none';
