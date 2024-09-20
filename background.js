@@ -68,6 +68,7 @@ async function askQuestion(formattedConversation) {
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.removeAll(() => {
+    console.log(messages[language].breakdownText);
     chrome.contextMenus.create({
       id: "breakdownText",
       title: messages[language].breakdownText,
