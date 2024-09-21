@@ -244,7 +244,27 @@ if (!document.getElementById('ai-chat-box')) {
         const messageLogoDiv = document.createElement("div");
         messageDiv.classList.add("messageDiv");
         messageDiv.innerHTML = formatMessage(newMessage);
-        //console.log(messageDiv.innerHTML);
+
+        // const strongTags = messageDiv.querySelectorAll('strong');
+        // if(strongTags.length > 0){
+        //   strongTags.forEach((tag) => {
+        //     //console.log(tag.textContent);
+        //     let textData = tag.textContent;
+        //     tag.textContent = "";
+        //     appendLetterByLetter(tag, textData, 0);
+        //     let textAfter = tag.nextSibling;
+        //     if(textAfter && textAfter.nodeType === Node.TEXT_NODE){
+        //       //console.log(textAfter.textContent);
+        //       textAfter.textContent += " ..modified"; 
+        //     }
+        //   })
+        // }
+        if(role === "assistant"){
+          traverse(messageDiv);
+        }
+        // console.log("******************");
+        // console.log(messageDiv.innerHTML);
+        console.log("===================");
         const img = document.createElement("img");
         img.style.width = "30px"; // Example width
         img.style.height = "30px"; // Example height
@@ -374,5 +394,28 @@ if (!document.getElementById('ai-chat-box')) {
         question.placeholder = messages[currentLanguage].enterQuestion;
         selectLanguagePan.textContent = messages[currentLanguage].selectLanguage;
     }
+
+    function appendLetterByLetter(element, content, index) {
+      if (index < content.length) {
+        element.textContent += content.charAt(index); // Append current letter
+        // document.getElementById("conversationDiv").scrollTop =
+        //   document.getElementById("conversationDiv").scrollHeight;
+        setTimeout(() => appendLetterByLetter(element, content, index + 1), 20); // Wait 10ms then append next letter
+      } 
+      
+    }
+
+    function traverse(node){
+        if(node.nodeType === Node.TEXT_NODE){
+          let textData = node.textContent;
+          node.textContent = "";
+          appendLetterByLetter(node, textData, 0);
+        }else{
+          for (let child of node.childNodes) {
+            traverse(child);
+          }
+        }
+    }
+
 
   }
