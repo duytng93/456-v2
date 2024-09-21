@@ -31,22 +31,25 @@ if (!document.getElementById('ai-chat-box')) {
         <img id="loadingGif" alt="Loading..." width="120px" height="120px"/>
         <div id="conversationDiv">
         </div>
-        <div class="row align-items-end" style="padding: 10px 20px 10px 20px">
+        <div id="QAdiv-footer">
+          <div class="row align-items-end" style="padding: 10px 20px 10px 20px">
             <div class="col-10">
                 <textarea class="form-control" id="question" rows="3" placeholder="Enter your question:"></textarea>
             </div>
             <div class="col-2 text-center">
                 <button class="btn btn-primary" type="button" id="submitQuestionButton"><i class="fa fa-paper-plane"></i></button>
             </div>
-        </div>
-        <div class="mb-3 text-center">
+          </div>
+          <div class="text-center">
             <p id="select-language-pan" class="d-inline">Select your language:</p>
             <select id="language-select" class="form-select form-select-sm" aria-label=".form-select-sm example" style="width: 32%; max-width:200px">
                 <option value="en">English (default)</option>
                 <option value="es">Spanish</option>
                 <option value="vi">Vietnamese</option>
             </select>
+          </div>
         </div>
+        
       </div>
     `;
   
@@ -116,7 +119,8 @@ if (!document.getElementById('ai-chat-box')) {
               QAButton.innerHTML = messages[currentLanguage].continueChat + ' <i class="fa fa-commenting-o fa-rotate-270"></i>'; 
               conversationDiv.style.display = "block";
               setTimeout(() => {
-                conversationDiv.style.height = "350px";
+                conversationDiv.style.height = "70%";
+                (isBigger) ? QAdiv.style.height = "85%" : QAdiv.style.height = "70%";
               }, 10);
             }
             else QAButton.innerHTML = messages[currentLanguage].needHelpButton + ' <i class="fa fa-commenting-o fa-rotate-270"></i>';
@@ -131,6 +135,7 @@ if (!document.getElementById('ai-chat-box')) {
             QAButton.innerHTML = messages[currentLanguage].continueChat + ' <i class="fa fa-commenting-o fa-rotate-270"></i>';
             setTimeout(() => {
               conversationDiv.style.height = "0px";
+              QAdiv.style.height = "20%";
             }, 10);
           }
           else QAButton.innerHTML = messages[currentLanguage].needHelpButton + ' <i class="fa fa-commenting-o fa-rotate-270"></i>';
@@ -150,6 +155,7 @@ if (!document.getElementById('ai-chat-box')) {
         toggleQAdiv();
         setTimeout(() => {
           conversationDiv.style.height = "0px";
+          QAdiv.style.height = "20%";
         }, 10);
         hideEndChat();
     }
@@ -174,9 +180,11 @@ if (!document.getElementById('ai-chat-box')) {
         //console.log('maximizeChat');
         if(isBigger){
             QAdiv.style.width = '30%';
+            QAdiv.style.height = '70%';
             isBigger = false;
         }else{
             QAdiv.style.width = '60%';
+            QAdiv.style.height = '85%';
             isBigger = true;
         }
     }
@@ -222,7 +230,8 @@ if (!document.getElementById('ai-chat-box')) {
         const div = createMessageDiv(newMessage, "user");
         if (!conversationDiv.style.height || conversationDiv.style.height === "0px") {  
           setTimeout(() => {
-            conversationDiv.style.height = "350px";
+            conversationDiv.style.height = "70%";
+            QAdiv.style.height = "70%";
           }, 10);
         }
         conversationDiv.appendChild(div);
@@ -404,7 +413,7 @@ if (!document.getElementById('ai-chat-box')) {
       while (index < content.length) {
         element.textContent += content.charAt(index);
         index++;
-        await sleep(30);
+        await sleep(10);
       }
       
     }
