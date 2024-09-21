@@ -395,13 +395,17 @@ if (!document.getElementById('ai-chat-box')) {
         selectLanguagePan.textContent = messages[currentLanguage].selectLanguage;
     }
 
-    function appendLetterByLetter(element, content, index) {
-      if (index < content.length) {
-        element.textContent += content.charAt(index); // Append current letter
-        // document.getElementById("conversationDiv").scrollTop =
-        //   document.getElementById("conversationDiv").scrollHeight;
-        setTimeout(() => appendLetterByLetter(element, content, index + 1), 20); // Wait 10ms then append next letter
-      } 
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function appendLetterByLetter(element, content, index) {
+
+      while (index < content.length) {
+        element.textContent += content.charAt(index);
+        index++;
+        await sleep(30);
+      }
       
     }
 
