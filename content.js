@@ -88,6 +88,7 @@ if (!document.getElementById('ai-chat-box')) {
     let conversation = [];
     let isBigger = false;
     let messages ={};
+    let textNodeData = [];
 
     chrome.runtime.sendMessage({ action: 'getMessages' }, (response) => {
       if (response && response.messages) {
@@ -191,6 +192,7 @@ if (!document.getElementById('ai-chat-box')) {
               saveCurrentConversation();
               let div = createMessageDiv(response.answer, "assistant");
               conversationDiv.appendChild(div);
+              traverse(div,getText=false,writeText=true);
               setTimeout(() => {
                 div.style.opacity = "1";
               }, 10);
@@ -260,7 +262,7 @@ if (!document.getElementById('ai-chat-box')) {
         //   })
         // }
         if(role === "assistant"){
-          traverse(messageDiv);
+          traverse(messageDiv,getText=true,writeText=false);
         }
         // console.log("******************");
         // console.log(messageDiv.innerHTML);
@@ -404,19 +406,25 @@ if (!document.getElementById('ai-chat-box')) {
       while (index < content.length) {
         element.textContent += content.charAt(index);
         index++;
-        await sleep(30);
+        await sleep(10);
       }
       
     }
 
-    function traverse(node){
+    async function traverse(node,getText,writeText){
         if(node.nodeType === Node.TEXT_NODE){
-          let textData = node.textContent;
-          node.textContent = "";
-          appendLetterByLetter(node, textData, 0);
+          if(getText){
+            textNodeData.push(node.textContent);
+            node.textContent = "";
+          }else if(writeText){
+            let textData = textNodeData.shift();
+            await appendLetterByLetter(node, textData, 0);
+            document.getElementById("conversationDiv").scrollTop = document.getElementById("conversationDiv").scrollHeight;
+          }
+          
         }else{
           for (let child of node.childNodes) {
-            traverse(child);
+            await traverse(child,getText,writeText);
           }
         }
     }
