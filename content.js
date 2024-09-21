@@ -88,7 +88,6 @@ if (!document.getElementById('ai-chat-box')) {
     let conversation = [];
     let isBigger = false;
     let messages ={};
-    let textNodeData = [];
 
     chrome.runtime.sendMessage({ action: 'getMessages' }, (response) => {
       if (response && response.messages) {
@@ -192,7 +191,6 @@ if (!document.getElementById('ai-chat-box')) {
               saveCurrentConversation();
               let div = createMessageDiv(response.answer, "assistant");
               conversationDiv.appendChild(div);
-              traverse(div,getText=false,writeText=true);
               setTimeout(() => {
                 div.style.opacity = "1";
               }, 10);
@@ -262,7 +260,7 @@ if (!document.getElementById('ai-chat-box')) {
         //   })
         // }
         if(role === "assistant"){
-          traverse(messageDiv,getText=true,writeText=false);
+          traverse(messageDiv);
         }
         // console.log("******************");
         // console.log(messageDiv.innerHTML);
@@ -406,25 +404,19 @@ if (!document.getElementById('ai-chat-box')) {
       while (index < content.length) {
         element.textContent += content.charAt(index);
         index++;
-        await sleep(10);
+        await sleep(30);
       }
       
     }
 
-    async function traverse(node,getText,writeText){
+    function traverse(node){
         if(node.nodeType === Node.TEXT_NODE){
-          if(getText){
-            textNodeData.push(node.textContent);
-            node.textContent = "";
-          }else if(writeText){
-            let textData = textNodeData.shift();
-            await appendLetterByLetter(node, textData, 0);
-            document.getElementById("conversationDiv").scrollTop = document.getElementById("conversationDiv").scrollHeight;
-          }
-          
+          let textData = node.textContent;
+          node.textContent = "";
+          appendLetterByLetter(node, textData, 0);
         }else{
           for (let child of node.childNodes) {
-            await traverse(child,getText,writeText);
+            traverse(child);
           }
         }
     }
