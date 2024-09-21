@@ -52,7 +52,7 @@ async function askQuestion(formattedConversation) {
     body: JSON.stringify({
       model: "gpt-4o-mini",  // Or gpt-4 if available
       messages: conversation,
-      max_tokens: 500
+      max_tokens: 1000
     })
   });
 
