@@ -48,7 +48,7 @@
 
 #submitQuestionButton{
     width: 100%;
-    max-width: 70px;
+    border-radius: 50%;
 }
 
 .close-button {

@@ -1,20 +1,30 @@
-// Dynamically inject Bootstrap from CDN
-const link = document.createElement('link');
-link.rel = 'stylesheet';
-link.href = 'https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css';
-document.head.appendChild(link);
+// Function to fetch and inject CSS file into Shadow DOM
+function injectStyleSheet(shadowRoot) {
+  fetch(chrome.runtime.getURL('style.css')) // Fetch the style.css file
+    .then(response => response.text())
+    .then(css => {
+      // Create a <style> element and insert the CSS content
+      const styleElement = document.createElement('style');
+      styleElement.textContent = css;
+      shadowRoot.appendChild(styleElement);
+    });
+}
 
-const link2 = document.createElement('link');
-link2.rel = 'stylesheet';
-link2.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css';
-document.head.appendChild(link2);
+const bootstrapLink = `
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css">
+`;
 
 if (!document.getElementById('ai-chat-box')) {
     let chatBox = document.createElement('div');
     chatBox.id = 'ai-chat-box';
-    chatBox.innerHTML = `
+
+    // Create shadow DOM
+    const shadowRoot = chatBox.attachShadow({ mode: 'open' });
+
+    shadowRoot.innerHTML = `
+      ${bootstrapLink}
       <div id="QAButtonContainer">
-            <button class="btn btn-primary" id="QAButton">Need help? <i class="fa fa-commenting-o fa-rotate-270"></i></button>
+            <button class="btn btn-primary" id="QAButton">Need help? <span>&#128172;</span></button>
       </div>
       <div id="QAdiv" class="border border-primary">
         <div id="QAdiv-header" class="bg-primary">
@@ -37,7 +47,7 @@ if (!document.getElementById('ai-chat-box')) {
                 <textarea class="form-control" id="question" rows="3" placeholder="Enter your question:"></textarea>
             </div>
             <div class="col-2 text-center">
-                <button class="btn btn-primary" type="button" id="submitQuestionButton"><i class="fa fa-paper-plane"></i></button>
+                <button class="btn btn-primary" type="button" id="submitQuestionButton"><span style='font-size:25px;'>&#8679;</span></button>
             </div>
           </div>
           <div class="text-center">
@@ -55,12 +65,17 @@ if (!document.getElementById('ai-chat-box')) {
   
     document.body.appendChild(chatBox);
 
-    document.getElementById('QAButton').addEventListener('click', toggleQAdiv);
-    document.getElementById('closeChatBtn').addEventListener('click', showEndChat);
-    document.getElementById('minimizeBtn').addEventListener('click', toggleQAdiv);
-    document.getElementById('submitQuestionButton').addEventListener('click', displayAndSubmit);
-    document.getElementById('maximizeBtn').addEventListener('click', maximizeChat);
-    document.getElementById('question').addEventListener('keydown', function (event) {
+     //Inject the style.css into the shadow DOM
+    injectStyleSheet(shadowRoot);
+
+    const shadowDoc = shadowRoot; // Use shadow DOM for querying elements
+
+    shadowDoc.getElementById('QAButton').addEventListener('click', toggleQAdiv);
+    shadowDoc.getElementById('closeChatBtn').addEventListener('click', showEndChat);
+    shadowDoc.getElementById('minimizeBtn').addEventListener('click', toggleQAdiv);
+    shadowDoc.getElementById('submitQuestionButton').addEventListener('click', displayAndSubmit);
+    shadowDoc.getElementById('maximizeBtn').addEventListener('click', maximizeChat);
+    shadowDoc.getElementById('question').addEventListener('keydown', function (event) {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault(); // Prevent the default behavior (inserting a newline)
             //get question text
@@ -68,24 +83,24 @@ if (!document.getElementById('ai-chat-box')) {
             displayAndSubmit(question.value); // Submit the form
           }
       });
-    document.getElementById("loadingGif").src = chrome.runtime.getURL("images/chatbot-thinking-bg-removed.gif");
-    document.getElementById("closeConfirm").addEventListener('click', endChat);
-    document.getElementById("closeCancel").addEventListener('click', hideEndChat);
-    document.getElementById("language-select").addEventListener('change', function(){
+      shadowDoc.getElementById("loadingGif").src = chrome.runtime.getURL("images/chatbot-thinking-bg-removed.gif");
+      shadowDoc.getElementById("closeConfirm").addEventListener('click', endChat);
+      shadowDoc.getElementById("closeCancel").addEventListener('click', hideEndChat);
+      shadowDoc.getElementById("language-select").addEventListener('change', function(){
       currentLanguage = this.value;
       chrome.runtime.sendMessage({ action: "changeLanguage", language: this.value });
       updateTextLanguage();
     });
     
-    const QAdiv = document.getElementById('QAdiv');
-    const QAButton = document.getElementById('QAButton');
-    const QAdivHeader = document.getElementById('QAdiv-header');
-    const closingMessageHeader = document.getElementById('closingMessageHeader');
-    const selectLanguagePan = document.getElementById('select-language-pan');
-    const QAButtonContainer = document.getElementById('QAButtonContainer');
-    const conversationDiv = document.getElementById("conversationDiv");
-    const closingMessage = document.getElementById("closingMessage");
-    const question = document.getElementById("question");
+    const QAdiv = shadowDoc.getElementById('QAdiv');
+    const QAButton = shadowDoc.getElementById('QAButton');
+    const QAdivHeader = shadowDoc.getElementById('QAdiv-header');
+    const closingMessageHeader = shadowDoc.getElementById('closingMessageHeader');
+    const selectLanguagePan = shadowDoc.getElementById('select-language-pan');
+    const QAButtonContainer = shadowDoc.getElementById('QAButtonContainer');
+    const conversationDiv = shadowDoc.getElementById("conversationDiv");
+    const closingMessage = shadowDoc.getElementById("closingMessage");
+    const question = shadowDoc.getElementById("question");
     let currentLanguage = "en";
 
     let conversation = [];
@@ -116,14 +131,14 @@ if (!document.getElementById('ai-chat-box')) {
         //console.log('toggleQAdiv');
         if(QAdiv.style.display !== 'block'){
             if (conversation.length > 0) { 
-              QAButton.innerHTML = messages[currentLanguage].continueChat + ' <i class="fa fa-commenting-o fa-rotate-270"></i>'; 
+              QAButton.innerHTML = messages[currentLanguage].continueChat + ' <span>&#128172;</span>'; 
               conversationDiv.style.display = "block";
               setTimeout(() => {
                 conversationDiv.style.height = "70%";
                 (isBigger) ? QAdiv.style.height = "85%" : QAdiv.style.height = "70%";
               }, 10);
             }
-            else QAButton.innerHTML = messages[currentLanguage].needHelpButton + ' <i class="fa fa-commenting-o fa-rotate-270"></i>';
+            else QAButton.innerHTML = messages[currentLanguage].needHelpButton + ' <span>&#128172;</span>';
             QAdiv.style.display='block';
             setTimeout(() => {
                 QAdiv.style.opacity = '1';
@@ -132,13 +147,13 @@ if (!document.getElementById('ai-chat-box')) {
         }
         else{
           if(conversation.length > 0){
-            QAButton.innerHTML = messages[currentLanguage].continueChat + ' <i class="fa fa-commenting-o fa-rotate-270"></i>';
+            QAButton.innerHTML = messages[currentLanguage].continueChat + ' <span>&#128172;</span>';
             setTimeout(() => {
               conversationDiv.style.height = "0px";
               QAdiv.style.height = "20%";
             }, 10);
           }
-          else QAButton.innerHTML = messages[currentLanguage].needHelpButton + ' <i class="fa fa-commenting-o fa-rotate-270"></i>';
+          else QAButton.innerHTML = messages[currentLanguage].needHelpButton + ' <span>&#128172;</span>';
             QAdiv.style.opacity = '0';
             setTimeout(() => {
                 QAdiv.style.display = 'none';
@@ -162,17 +177,17 @@ if (!document.getElementById('ai-chat-box')) {
 
     function showEndChat(){
       if(conversation.length > 0){
-        document.getElementById("closingMessage").style.display = 'block'
+        shadowDoc.getElementById("closingMessage").style.display = 'block'
         setTimeout(() => {
-            document.getElementById('closingMessage').style.opacity = 1;
+          shadowDoc.getElementById('closingMessage').style.opacity = 1;
         }, 10);
       }else toggleQAdiv();
   }
 
     function hideEndChat(){
-        document.getElementById('closingMessage').style.opacity = 0;
+      shadowDoc.getElementById('closingMessage').style.opacity = 0;
         setTimeout(() => {
-            document.getElementById('closingMessage').style.display = 'none';
+          shadowDoc.getElementById('closingMessage').style.display = 'none';
         }, 10);
     }
 
@@ -204,10 +219,10 @@ if (!document.getElementById('ai-chat-box')) {
               }, 10);
             
             setTimeout(() => {
-                document.getElementById("loadingGif").style.opacity = 0;
+              shadowDoc.getElementById("loadingGif").style.opacity = 0;
               }, 500);
               setTimeout(() => {
-                document.getElementById("loadingGif").style.display = "none";
+                shadowDoc.getElementById("loadingGif").style.display = "none";
               }, 1000);
             }
           }
@@ -218,13 +233,13 @@ if (!document.getElementById('ai-chat-box')) {
       
         // show loading animation
         conversationDiv.style.display = "block";
-        document.getElementById("loadingGif").style.display = "block";
+        shadowDoc.getElementById("loadingGif").style.display = "block";
         setTimeout(() => {
-          document.getElementById("loadingGif").style.opacity = "1";
+          shadowDoc.getElementById("loadingGif").style.opacity = "1";
         }, 10);
       
         //reset question text
-        document.getElementById("question").value = "";
+        shadowDoc.getElementById("question").value = "";
       
         //create message div and append to conversation div
         const div = createMessageDiv(newMessage, "user");
@@ -313,12 +328,12 @@ if (!document.getElementById('ai-chat-box')) {
       chrome.runtime.sendMessage({ action: "getData" }, (response) => {
         if(response && response.language){
           currentLanguage = response.language;
-          document.getElementById("language-select").value = currentLanguage;
+          shadowDoc.getElementById("language-select").value = currentLanguage;
           updateTextLanguage();
         }
         if(response && response.currentConversation.length>0){
             console.log(response.currentConversation);
-            QAButton.innerHTML = messages[currentLanguage].continueChat + ' <i class="fa fa-commenting-o fa-rotate-270"></i>';
+            QAButton.innerHTML = messages[currentLanguage].continueChat + ' <span>&#128172;</span>';
             conversation = response.currentConversation;
             // setTimeout(() => {
             //   conversationDiv.style.height = "350px";
@@ -361,7 +376,7 @@ if (!document.getElementById('ai-chat-box')) {
     //     chrome.runtime.sendMessage({ action: "getCurrentConversation" }, (response) => {
     //       if (response && response.currentConversation.length) {
     //         console.log(response.currentConversation);
-    //         QAButton.innerHTML = messages[currentLanguage].continueChat + ' <i class="fa fa-commenting-o fa-rotate-270"></i>';
+    //         QAButton.innerHTML = messages[currentLanguage].continueChat + ' <span>&#128172;</span>';
     //         conversation = response.currentConversation;
     //         setTimeout(() => {
     //           conversationDiv.style.height = "350px";
@@ -396,7 +411,7 @@ if (!document.getElementById('ai-chat-box')) {
 
     function updateTextLanguage(){
       //console.log(messages);
-        QAButton.innerHTML = messages[currentLanguage].needHelpButton + ' <i class="fa fa-commenting-o fa-rotate-270"></i>';
+        QAButton.innerHTML = messages[currentLanguage].needHelpButton + ' <span>&#128172;</span>';
         QAdivHeader.textContent = messages[currentLanguage].header;
         selectLanguagePan.textContent = messages[currentLanguage].selectLanguage;
         closingMessageHeader.textContent = messages[currentLanguage].endChat;

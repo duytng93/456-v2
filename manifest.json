@@ -10,8 +10,7 @@
     "content_scripts": [
       {
         "matches": ["<all_urls>"], 
-        "js": ["marked.min.js","content.js"],
-        "css": ["style.css"]  
+        "js": ["marked.min.js","content.js"]
       }
     ],
     "web_accessible_resources": [
@@ -20,7 +19,8 @@
                       "bootstrap-icons.css",
                       "images/user-icon.png",
                       "images/open-ai-logo.png",
-                      "images/chatbot-thinking-bg-removed.gif"],
+                      "images/chatbot-thinking-bg-removed.gif",
+                      "style.css"],
         "matches": ["<all_urls>"]
       }
     ],
